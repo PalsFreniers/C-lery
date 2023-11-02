@@ -1,0 +1,111 @@
+[lstd]
+[lfile]
+[Clstdio]
+
+namespace use std;
+
+type new(code) {i32};
+
+type new(duration) {u64} : {
+
+	method init() -> duration {
+		self = 0;
+	}
+
+	method Seconds() -> u64 {
+		return self / 1000;
+	}
+
+	method Minutes() -> u64 {
+		return self.Seconds() / 60;
+	}
+
+	method Hours() -> u64 {
+		return self.Minutes() / 60;
+	}
+
+	method toString() -> str {
+		return !"${self.Hours}:${self.Minutes}:${self.Seconds}";
+	}
+}
+
+type new(cstr) {str} : {
+	method init() -> void {
+
+	}	
+}
+
+namespace define classes {
+	class Obj {
+		method init(x: i32, y: i32, name: str = "noName") -> void {
+			self[x] = x;
+			self[y] = y;
+			self[name] = name;
+		} // mandatory
+
+		method destruct() -> void {
+
+		} // optional
+
+		method copy(Obj copy) -> void {
+			self[x] = copy.getX();
+			self[y] = copy.getY();
+		} // optional
+
+		property x: i32;
+		property y: i32 {default = 0};
+		property name: str {get;set;};
+
+		method toString() -> void {
+			return !"${self[name]} => {${self[x]}; ${self[y]}}";
+		} 
+	}
+
+	struct Point (
+			x: i32,
+			y: i32,
+	)
+
+	enum exitType {
+		EXIT_SUCESS = 0,
+		EXIT_FAILED = 1,
+		EXIT_SKIPPED = 2,
+	}
+
+	union number [f32:i32:f64:i64];	
+	
+	struct nb (size: i8, data: number);
+
+}
+
+fn writeToFile(text: str, filePath: str) -> void {
+	var file = file::open(filePath, "w");
+	defer {
+		file.close();
+	}
+	file.write("New text : {%s}", text);
+}
+
+fn strmap(arr: str, map: fn[char](char)) -> str {
+	defer print("finished to map character from arr");
+	var ret = new str;
+	for(var c : arr.cstr()) {
+		ret.append(map(c));
+	}
+	return ret;
+}
+
+namespace define rng {
+	fn sayHello() -> void {
+		printf("Hello\n");
+	}
+}
+
+fn entry([]args: str) -> code {
+	C::stdio::printf("Hello World from c printf!\n"); // using a function from a c library
+	std::print("Hello world from C-lery print!\n"); // using a function from a library
+	rng::sayHello();
+	var object = new Obj(12, 53);
+	printf(!"${object}");
+	return 0;
+}
