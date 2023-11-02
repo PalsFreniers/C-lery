@@ -1,5 +1,5 @@
 SRC=main.vala
-NAME=brocoli
+NAME=brocoly
 
 all: $(NAME)
 
