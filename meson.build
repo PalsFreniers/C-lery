@@ -15,7 +15,9 @@ dependencies = [
 src = files([
   'main.vala',
   'normalise.vala',
-  'token.vala'
+  'token.vala',
+  'lexer.vala',
+  'logger.vala'
 ])
 
 executable('brocoly', [src], vala_args: [vala_args], dependencies: dependencies)

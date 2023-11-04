@@ -1,0 +1,7 @@
+[lstd]
+
+namespace use std;
+
+fn main() -> void {
+        print("Hello World!\n");
+}
