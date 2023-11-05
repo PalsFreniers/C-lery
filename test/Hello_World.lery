@@ -1,7 +1,11 @@
-[lstd]
+[Lstd]
 
 namespace use std;
 
+global name: str;
+
 fn main() -> void {
-        print("Hello World!\n");
+        name = "Tidian";
+        print("Hello %s!\n", name);
+        '\\';
 }

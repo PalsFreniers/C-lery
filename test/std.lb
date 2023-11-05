@@ -1,0 +1,1 @@
+fn print(fmt: str, lst: va_list) -> i32;

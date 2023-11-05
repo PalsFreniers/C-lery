@@ -1,6 +1,7 @@
-[lstd]
-[lfile]
-[Clstdio]
+[Lstd]
+[Lfile]
+[CLstdio]
+
 namespace use std;
 
 type new(code){i32};
@@ -104,12 +105,5 @@ on multiple lines\n"); // using a function from a library
         rng::sayHello();
         var object=new Obj(12,53);
         printf(!"${object}");
-        +-/*%<<>>+=-=/=*=%=<<=>>=<><==<>==>====!=
-        &&||&|~^&=|=^=~=
-        hello++--;
-        012_3__45___678_9;
-        0b1101_1__101_;
-        0x0F_aB_E3;
-        0023.65;
         return 0;
 }

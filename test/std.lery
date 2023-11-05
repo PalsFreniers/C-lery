@@ -1,0 +1,7 @@
+[CLstdio]
+
+fn print(fmt: str, lst: va_list) -> i32 {
+        var ret = C::stdio::vprintf(fmt, va_list);
+        C::stdio::printf("\n");
+        return ret;
+}
