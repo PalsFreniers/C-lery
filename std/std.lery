@@ -1,0 +1,9 @@
+fn print(s: str) -> void {
+        len: u64 = str.len;
+        asm(str.addr, len) => {
+                "mov rax, 1",
+                "mov rdi, $0",
+                "mov rsi, $1",
+                "syscall"
+        }
+}

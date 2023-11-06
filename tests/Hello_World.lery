@@ -1,0 +1,5 @@
+[Lstd]
+
+fn entry() -> void {
+	std::print("Hello, World!\n");
+}
