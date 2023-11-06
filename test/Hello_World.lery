@@ -1,11 +1,16 @@
-[Lstd]
+global C::importSymbol("printf")(fmt: str, lst: va_list);
 
-namespace use std;
+fn printnbr(nb: i32, ) -> void {
+        printf("%d\n", nb);
+        C::printf("Hello World!\n");
+        C::callSymbol("write")(1, "test", 4);
+}
 
-global name: str;
+fn test1(i: str, lst: va_list) -> void {}
+fn test2(i: str, lst: va_list) -> void {}
+fn test3(i: str, lst: va_list) -> void {}
 
-fn main() -> void {
-        name = "Tidian";
-        print("Hello %s!\n", name);
-        '\\';
+fn entry() -> i32 {
+        print("test");
+        return 69;
 }

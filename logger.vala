@@ -15,6 +15,7 @@ public class Logger {
                 this.debugColor = "\033[34m";
         }
 
+        [NoReturn]
         public void TokenError(TokenInfo info, string fmt, ...) {
                 var lst = va_list();
                 stderr.printf(@"$(this.errorColor)[$(this.name) ERROR]$(resetColor)   $(info.file):$(info.line):$(info.column) -> ");

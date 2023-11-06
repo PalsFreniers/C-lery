@@ -7,7 +7,7 @@ public TokenType getBracketType(char c) {
         case '(':
                 return TokenType.PARENTESIS_OPEN;
         case ')':
-                return TokenType.PARENTSIS_CLOSE;
+                return TokenType.PARENTESIS_CLOSE;
         case '[':
                 return TokenType.SQUARE_BRACKET_OPEN;
         case ']':
@@ -410,6 +410,7 @@ public Token[] getTokensList(string code, string filename) {
                 i++; 
                 column++;
         }
+        ret += Token("", TokenType.EOC, TokenInfo(-1, -1, "null"));
         return ret;
 }
 

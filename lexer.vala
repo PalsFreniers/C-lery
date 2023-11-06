@@ -22,32 +22,27 @@ public enum BaseTypes {
         }
 }
 
-public class LexerToken {
-        public Token[] token;
-}
-
-
-public class LexerVariable : LexerToken {
+public class LexerVariable {
+        public bool isReference;
         public string typeName;
         public string name;
 }
 
-public class LexerFunction : LexerToken {
+public class LexerFunction {
         public LexerVariable[] parameters;
-        public LexerToken[] body;
         public string returnType;
+        public Token[] body;
         public string name;
 }
 
-public class LexerType : LexerToken {
+public class LexerType {
         public LexerFunction[] methods;
         public string previous;
         public string name;
         public int size;
-        public bool isBase;
 }
 
-public class LexerContainer : LexerToken {
+public class LexerNamespace {
         public string[] namespaces;
         public string[] functions;
         public string[] classes;
@@ -57,11 +52,4 @@ public class LexerContainer : LexerToken {
         public string[] types;
         public string[] enums;
         public string name;
-}
-
-public class LexerLibrary : LexerContainer {
-        public bool isCLib;
-}
-
-public class LexerNamespace : LexerContainer {
 }

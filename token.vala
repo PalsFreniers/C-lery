@@ -2,8 +2,8 @@ public enum TokenType {
         UNDEFINED,
         IDENTIFIER, KEYWORD,
         INT_LITTERAL, FLOAT_LITTERAL, BOOL_LITTERAL, CHAR_LITTERAL, STRING_LITTERAL,
-        BRACKET_OPEN, BRACKET_CLOSE, PARENTESIS_OPEN, PARENTSIS_CLOSE, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE,
-        OPERATOR, SPECIAL; 
+        BRACKET_OPEN, BRACKET_CLOSE, PARENTESIS_OPEN, PARENTESIS_CLOSE, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE,
+        OPERATOR, SPECIAL, EOC; 
 
         public string to_string() {
                 switch (this) {
@@ -31,7 +31,7 @@ public enum TokenType {
                                 return "}";
                         case PARENTESIS_OPEN:
                                 return "(";
-                        case PARENTSIS_CLOSE:
+                        case PARENTESIS_CLOSE:
                                 return ")";
                         case SQUARE_BRACKET_OPEN:
                                 return "[";
@@ -39,6 +39,8 @@ public enum TokenType {
                                 return "]";
                         case SPECIAL:
                                 return "Special Symbol";
+                        case EOC:
+                                return "End of code";
                 }
                 return "unreachable";
         }
@@ -160,5 +162,6 @@ public const string KEYWORDS[] = {
         "bool",
         "char",
         "str",
+        "va_list",
         "void",
 };
