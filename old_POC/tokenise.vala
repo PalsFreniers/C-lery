@@ -415,23 +415,3 @@ public Token[] getTokensList(string code, string filename) {
 }
 
 
-public string removeComments(string code) {
-        var ret = new StringBuilder();
-        for (var i = 0; i < code.length; i++) {
-                var c = code[i];
-                if(c == '/') {
-                        if(code[i + 1] == '/') {
-                                while(c != '\n') {
-                                        c = code[i];
-                                        i++;
-                                }
-                                i -=2;
-                        } else {
-                                ret.append_c(c);
-                        }
-                } else {
-                        ret.append_c(c);
-                }
-        }
-        return ret.str;
-}
