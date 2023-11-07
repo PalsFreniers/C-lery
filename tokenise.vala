@@ -1,20 +1,5 @@
-public TokenType getBracketType(char c) {
-        switch (c) {
-        case '{':
-                return TokenType.BRACKET_OPEN;
-        case '}':
-                return TokenType.BRACKET_CLOSE;
-        case '(':
-                return TokenType.PARENTESIS_OPEN;
-        case ')':
-                return TokenType.PARENTESIS_CLOSE;
-        case '[':
-                return TokenType.SQUARE_BRACKET_OPEN;
-        case ']':
-                return TokenType.SQUARE_BRACKET_CLOSE;
-        default:
-                return TokenType.UNDEFINED;                
-        }
+public TokenType getNumberLitteralType(string number) {
+
 }
 
 public Token[] getTokensList(string code, string filename) {
@@ -45,9 +30,162 @@ public Token[] getTokensList(string code, string filename) {
                                 column++;
                                 c = code[i];
                         }
-                        var text = tokText.str;
-                        var type = (text in KEYWORDS) ? TokenType.KEYWORD : TokenType.IDENTIFIER;
-                        ret += Token(tokText.str, type, info);
+                        string? text = tokText.str;
+                        var type = TokenType.IDENTIFIER;
+                        switch(text) {
+                                case "namespace":
+                                        type = TokenType.KW_NAMESPACE;
+                                        break;
+                                case "define":
+                                        type = TokenType.KW_DEFINE;
+                                        break;
+                                case "use":
+                                        type = TokenType.KW_USE;
+                                        break;
+                                case "class":
+                                        type = TokenType.KW_CLASS;
+                                        break;
+                                case "struct":
+                                        type = TokenType.KW_STRUCT;
+                                        break;
+                                case "enum":
+                                        type = TokenType.KW_ENUM;
+                                        break;
+                                case "union":
+                                        type = TokenType.KW_UNION;
+                                        break;
+                                case "type":
+                                        type = TokenType.KW_TYPE;
+                                        break;
+                                case "inline":
+                                        type = TokenType.KW_INLINE;
+                                        break;
+                                case "fn":
+                                        type = TokenType.KW_FUNCTION;
+                                        break;
+                                case "method":
+                                        type = TokenType.KW_METHOD;
+                                        break;
+                                case "lambda":
+                                        type = TokenType.KW_LAMBDA;
+                                        break;
+                                case "property":
+                                        type = TokenType.KW_PROPERTY;
+                                        break;
+                                case "ref":
+                                        type = TokenType.KW_REF;
+                                        break;
+                                case "new":
+                                        type = TokenType.KW_NEW;
+                                        break;
+                                case "var":
+                                        type = TokenType.KW_VAR;
+                                        break;
+                                case "const":
+                                        type = TokenType.KW_CONST;
+                                        break;
+                                case "return":
+                                        type = TokenType.KW_RETURN;
+                                        break;
+                                case "defer":
+                                        type = TokenType.KW_DEFER;
+                                        break;
+                                case "self":
+                                        type = TokenType.KW_SELF;
+                                        break;
+                                case "set":
+                                        type = TokenType.KW_SET;
+                                        break;
+                                case "get":
+                                        type = TokenType.KW_GET;
+                                        break;
+                                case "default":
+                                        type = TokenType.KW_DEFAULT;
+                                        break;
+                                case "if":
+                                        type = TokenType.KW_IF;
+                                        break;
+                                case "else":
+                                        type = TokenType.KW_ELSE;
+                                        break;
+                                case "elif":
+                                        type = TokenType.KW_ELIF;
+                                        break;
+                                case "switch":
+                                        type = TokenType.KW_SWITCH;
+                                        break;
+                                case "case":
+                                        type = TokenType.KW_CASE;
+                                        break;
+                                case "goto":
+                                        type = TokenType.KW_GOTO;
+                                        break;
+                                case "break":
+                                        type = TokenType.KW_BREAK;
+                                        break;
+                                case "continue":
+                                        type = TokenType.KW_CONTINUE;
+                                        break;
+                                case "while":
+                                        type = TokenType.KW_WHILE;
+                                        break;
+                                case "for":
+                                        type = TokenType.KW_FOR;
+                                        break;
+                                case "do":
+                                        type = TokenType.KW_DO;
+                                        break;
+                                case "i8":
+                                        type = TokenType.TYPE_INT8;
+                                        break;
+                                case "i16":
+                                        type = TokenType.TYPE_INT16;
+                                        break;
+                                case "i32":
+                                        type = TokenType.TYPE_INT32;
+                                        break;
+                                case "i64":
+                                        type = TokenType.TYPE_INT64;
+                                        break;
+                                case "u8":
+                                        type = TokenType.TYPE_UINT8;
+                                        break;
+                                case "u16":
+                                        type = TokenType.TYPE_UINT16;
+                                        break;
+                                case "u32":
+                                        type = TokenType.TYPE_UINT32;
+                                        break;
+                                case "u64":
+                                        type = TokenType.TYPE_UINT64;
+                                        break;
+                                case "f32":
+                                        type = TokenType.TYPE_F32;
+                                        break;
+                                case "f64":
+                                        type = TokenType.TYPE_F64;
+                                        break;
+                                case "f128":
+                                        type = TokenType.TYPE_F128;
+                                        break;
+                                case "bool":
+                                        type = TokenType.TYPE_BOOL;
+                                        break;
+                                case "char":
+                                        type = TokenType.TYPE_CHAR;
+                                        break;
+                                case "str":
+                                        type = TokenType.TYPE_STR;
+                                        break;
+                                case "va_list":
+                                        type = TokenType.TYPE_VA_LIST;
+                                        break;
+                                case "void":
+                                        type = TokenType.TYPE_VOID;
+                                        break;
+                        }
+                        if(type != TokenType.IDENTIFIER) text = null;
+                        ret += Token(type, info, text);
                         continue;
                 }
                 if(c.isdigit()) {
@@ -67,8 +205,6 @@ public Token[] getTokensList(string code, string filename) {
                                         column++;
                                         c = code[i];
                                 }
-                                tok = Token(tokText.str, TokenType.INT_LITTERAL, info);
-                                tok.specs = TokenSpec.INT_HEX;
                         } else if(c == '0' && code[i] == 'b') {
                                 tokText.append("0b");
                                 i++;
@@ -80,10 +216,7 @@ public Token[] getTokensList(string code, string filename) {
                                         column++;
                                         c = code[i];
                                 }
-                                tok = Token(tokText.str, TokenType.INT_LITTERAL, info);
-                                tok.specs = TokenSpec.INT_BIN;
                         } else {
-                                var type = TokenType.INT_LITTERAL;
                                 tokText.append_c(c);
                                 c = code[i];
                                 while(c.isdigit() || c == '_') {
@@ -93,15 +226,14 @@ public Token[] getTokensList(string code, string filename) {
                                         c = code[i];
                                         if(c == '.') {
                                                 tokText.append_c(c);
-                                                type = TokenType.FLOAT_LITTERAL;
                                                 i++;
                                                 column++;
                                                 c = code[i];
                                         }
                                 }
-                                tok = Token(tokText.str, type, info);
-                                if(type == TokenType.INT_LITTERAL) tok.specs = TokenSpec.INT_DEC;
                         }
+                        var type = getNumberLitteralType(tokText.str);
+                        tok = Token(type, info, tokText.str);
                         ret += tok;
                         continue;
                 }
@@ -172,6 +304,27 @@ public Token[] getTokensList(string code, string filename) {
                         tokText.append_c(c);
                         i++;
                         column++;
+                        var type = TokenType.UNDEFINED;
+                        switch (c) {
+                                case '{':
+                                        type = TokenType.BRACKET_OPEN;
+                                        break;
+                                case '}':
+                                        type = TokenType.BRACKET_CLOSE;
+                                        break;
+                                case '(':
+                                        type = TokenType.PARENTESIS_OPEN;
+                                        break;
+                                case ')':
+                                        type = TokenType.PARENTESIS_CLOSE;
+                                        break;
+                                case '[':
+                                        type = TokenType.SQUARE_BRACKET_OPEN;
+                                        break;
+                                case ']':
+                                        type = TokenType.SQUARE_BRACKET_CLOSE;
+                                        break;
+                        }
                         var tok = Token(tokText.str, getBracketType(c), TokenInfo(line, column, filename));
                         if(tok.type == TokenType.UNDEFINED) _log.TokenError(tok.info, "Parsing error undefined bracket Type |unreachable|");
                         ret += tok;
