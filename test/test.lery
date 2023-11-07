@@ -105,5 +105,9 @@ on multiple lines\n"); // using a function from a library
         rng::sayHello();
         var object=new Obj(12,53);
         printf(!"${object}");
+        var l = strmap("test", lambda[char](char c) {
+                if(c == 't') return 'f';
+                return c;
+        });
         return 0;
 }
