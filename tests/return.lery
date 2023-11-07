@@ -1,3 +1,0 @@
-fn entry() -> i32 {
-        return 69;
-}
