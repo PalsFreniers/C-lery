@@ -1,5 +1,26 @@
-public TokenType getNumberLitteralType(string number) {
+public TokenType getFloatBytesSize(string number, Logger _log) {
+        var pow  = (int)Math.ceil(number.split(".")[0].length * Math.log2(10));
+        var size = (int)Math.ceil((number.length - 1) * Math.log2(10));
+        if(size < 24 && pow < 9) return TokenType.LITTERAL_F32;
+        if(size < 53 && pow < 12) return TokenType.LITTERAL_F64;
+        if(size < 113 && pow < 16) return TokenType.LITTERAL_F128;
+        _log.error(@"Uknown byte size of floating point $(number)");
+}
 
+public TokenType getNumberLitteralType(string number) {
+        var _log = new Logger("Number Converter");
+        int size;
+        if(number.has_prefix("0x")) size = (number.length - 2) * 4;
+        else if(number.has_prefix("0b")) size = number.length - 2;
+        else if(number.contains(".")) return getFloatBytesSize(number, _log);
+        else size = (int)Math.pow(2, Math.ceil(Math.log2(number.length * Math.log2(10))));
+        if(size < 8) size = 8;
+        if(size > 64) _log.error(@"this value is too big : $(number)");
+        if(size == 8)  return TokenType.LITTERAL_UINT8;
+        if(size == 16) return TokenType.LITTERAL_UINT16;
+        if(size == 32) return TokenType.LITTERAL_UINT32;
+        if(size == 64) return TokenType.LITTERAL_UINT32;
+        _log.error(@"Unknown byte size of number $(number)");
 }
 
 public Token[] getTokensList(string code, string filename) {
@@ -16,8 +37,7 @@ public Token[] getTokensList(string code, string filename) {
                         column = 0;
                         i++;
                         continue;
-                }
-                if(c.isalpha() || c == '_') {
+                } else if(c.isalpha() || c == '_') {
                         var tokText = new StringBuilder();
                         i++;
                         column++;
@@ -101,6 +121,9 @@ public Token[] getTokensList(string code, string filename) {
                                         break;
                                 case "default":
                                         type = TokenType.KW_DEFAULT;
+                                        break;
+                                case "asm":
+                                        type = TokenType.KW_ASM;
                                         break;
                                 case "if":
                                         type = TokenType.KW_IF;
@@ -187,8 +210,7 @@ public Token[] getTokensList(string code, string filename) {
                         if(type != TokenType.IDENTIFIER) text = null;
                         ret += Token(type, info, text);
                         continue;
-                }
-                if(c.isdigit()) {
+                } else if(c.isdigit()) {
                         var tokText = new StringBuilder();
                         i++;
                         column++;
@@ -236,8 +258,7 @@ public Token[] getTokensList(string code, string filename) {
                         tok = Token(type, info, tokText.str);
                         ret += tok;
                         continue;
-                }
-                if(c == '\"') {
+                } else if(c == '\"') {
                         var tokText = new StringBuilder();
                         i++;
                         column++;
@@ -272,10 +293,9 @@ public Token[] getTokensList(string code, string filename) {
                         i++;
                         column++;
                         c = code[i];
-                        ret += Token(tokText.str, TokenType.STRING_LITTERAL, info);
+                        ret += Token(TokenType.LITTERAL_STR, info, tokText.str);
                         continue;
-                }
-                if(c == '\'') {
+                } else if(c == '\'') {
                         var tokText = new StringBuilder();
                         i++;
                         column++;
@@ -296,15 +316,13 @@ public Token[] getTokensList(string code, string filename) {
                         i++;
                         column++;
                         c = code[i];
-                        ret += Token(tokText.str, TokenType.CHAR_LITTERAL, info);
+                        ret += Token(TokenType.LITTERAL_CHAR, info, tokText.str);
                         continue;
-                }
-                if(c in "[](){}".data) {
-                        var tokText = new StringBuilder();
-                        tokText.append_c(c);
+                } else if(c in "[](){}".data) {
                         i++;
                         column++;
                         var type = TokenType.UNDEFINED;
+                        var info = TokenInfo(line, column, filename);
                         switch (c) {
                                 case '{':
                                         type = TokenType.BRACKET_OPEN;
@@ -325,246 +343,305 @@ public Token[] getTokensList(string code, string filename) {
                                         type = TokenType.SQUARE_BRACKET_CLOSE;
                                         break;
                         }
-                        var tok = Token(tokText.str, getBracketType(c), TokenInfo(line, column, filename));
-                        if(tok.type == TokenType.UNDEFINED) _log.TokenError(tok.info, "Parsing error undefined bracket Type |unreachable|");
-                        ret += tok;
+                        if(type == TokenType.UNDEFINED) _log.TokenError(info, "Parsing error undefined bracket Type |unreachable|");
+                        ret += Token(type, info);
                         c = code[i];
                         continue;
-                }
-                if(c == '/') {
-                        var tokText = new StringBuilder();
+                } else if(c == '/') {
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
+                        TokenType type;
                         c = code[i];
                         if(c == '=') {
-                                tokText.append("/=");
+                                type = TokenType.OPERATOR_DIVIDE_EQ;
                                 i++;
                                 column++;
-                        } else {
-                                tokText.append_c('/');
-                        }
-                        ret += Token(tokText.str, TokenType.OPERATOR, info);
+                        } else type = TokenType.OPERATOR_DIVIDE;
+                        ret += Token(type, info);
                         continue;
                 }
                 if(c == '*') {
-                        var tokText = new StringBuilder();
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
+                        TokenType type;
                         c = code[i];
                         if(c == '=') {
-                                tokText.append("*=");
+                                type = TokenType.OPERATOR_MULT_EQ;
                                 i++;
                                 column++;
-                        } else {
-                                tokText.append_c('*');
-                        }
-                        ret += Token(tokText.str, TokenType.OPERATOR, info);
+                        } else type = TokenType.OPERATOR_MULT;
+                        ret += Token(type, info);
                         continue;
                 }
                 if(c == '+') {
-                        var tokText = new StringBuilder();
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
+                        TokenType type;
                         c = code[i];
                         if(c == '=') {
-                                tokText.append("+=");
+                                type = TokenType.OPERATOR_PLUS_EQ;
                                 i++;
                                 column++;
                         } else if(c == '+') {
-                                tokText.append("++");
+                                type = TokenType.OPERATOR_INC;
                                 i++;
                                 column++;
-                        } else {
-                                tokText.append_c('+');
-                        }
-                        ret += Token(tokText.str, TokenType.OPERATOR, info);
+                        } else type = TokenType.OPERATOR_PLUS;
+                        ret += Token(type, info);
                         continue;
                 }
                 if(c == '-') {
-                        var tokText = new StringBuilder();
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
-                        var type = TokenType.OPERATOR;
+                        TokenType type;
                         c = code[i];
                         if(c == '=') {
-                                tokText.append("-=");
+                                type = TokenType.OPERATOR_MINUS_EQ;
                                 i++;
                                 column++;
                         } else if(c == '-') {
-                                tokText.append("--");
+                                type = TokenType.OPERATOR_DEC;
                                 i++;
                                 column++;
                         } else if(c == '>') {
-                                tokText.append("->");
+                                type = TokenType.SPECIAL_RETURN_TYPE;
                                 i++;
                                 column++;
-                                type = TokenType.SPECIAL;
-                        } else {
-                                tokText.append_c('-');
-                        }
-                        ret += Token(tokText.str, type, info);
+                        } else type = TokenType.OPERATOR_MINUS;
+                        ret += Token(type, info);
                         continue;
                 }
                 if(c == '%') {
-                        var tokText = new StringBuilder();
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
+                        TokenType type;
                         c = code[i];
                         if(c == '=') {
-                                tokText.append("%=");
+                                type = TokenType.OPERATOR_MOD_EQ;
                                 i++;
-                        } else {
-                                tokText.append_c('%');
-                        }
-                        ret += Token(tokText.str, TokenType.OPERATOR, info);
+                                column++;
+                        } else type = TokenType.OPERATOR_MOD;
+                        ret += Token(type, info);
                         continue;
                 }
                 if(c == '!') {
-                        var tokText = new StringBuilder();
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
-                        var type = TokenType.OPERATOR;
+                        TokenType type;
                         c = code[i];
                         if(c == '=') {
-                                tokText.append("!=");
+                                type = TokenType.OPERATOR_NOT_EQ;
                                 i++;
                                 column++;
-                        } else if(c == '\"') {
-                                tokText.append_c('!');
-                                type = TokenType.SPECIAL;
-                        } else {
-                                tokText.append_c('!');
-                        }
-                        ret += Token(tokText.str, type, info);
+                        } else if(c == '\"') type = TokenType.SPECIAL_STRING_CAT;
+                        else type = TokenType.OPERATOR_NOT;
+                        ret += Token(type, info);
                         continue;
                 }
                 if(c == '=') {
-                        var tokText = new StringBuilder();
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
+                        TokenType type;
                         c = code[i];
                         if(c == '=') {
-                                tokText.append("==");
+                                type = TokenType.OPERATOR_EQU;
                                 i++;
                                 column++;
                         } else if(c == '>') {
-                                tokText.append("=>");
+                                type = TokenType.OPERATOR_GEQU;
                                 i++;
                                 column++;
                         } else if(c == '<') {
-                                tokText.append("=<");
+                                type = TokenType.OPERATOR_LEQU;
                                 i++;
                                 column++;
-                        } else {
-                                tokText.append_c('=');
-                        }
-                        ret += Token(tokText.str, TokenType.OPERATOR, info);
+                        } else type = TokenType.OPERATOR_ASSIGN;
+                        ret += Token(type, info);
                         continue;
                 }
                 if(c == '<') {
-                        var tokText = new StringBuilder();
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
+                        TokenType type;
                         c = code[i];
                         if(c == '<') {
                                 i++;
                                 column++;
                                 c = code[i];
                                 if(c == '=') {
-                                        tokText.append("<<=");
+                                        type = TokenType.OPERATOR_SHL_EQU;
                                         i++;
                                         column++;
-                                } else tokText.append("<<");
+                                } else type = TokenType.OPERATOR_SHL;
                         } else if(c == '=') {
-                                tokText.append("<=");
+                                type = TokenType.OPERATOR_LEQU;
                                 i++;
                                 column++;
-                        } else {
-                                tokText.append_c('<');
-                        }
-                        ret += Token(tokText.str, TokenType.OPERATOR, info);
+                        } else type = TokenType.OPRATOR_LESS;
+                        ret += Token(type, info);
                         continue;
                 }
                 if(c == '>') {
-                        var tokText = new StringBuilder();
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
+                        TokenType type;
                         c = code[i];
                         if(c == '>') {
                                 i++;
                                 column++;
                                 c = code[i];
                                 if(c == '=') {
-                                        tokText.append(">>=");
+                                        type = TokenType.OPERATOR_SHR_EQU;
                                         i++;
                                         column++;
-                                } else tokText.append(">>");
+                                } else type = TokenType.OPERATOR_SHR;
                         } else if(c == '=') {
-                                tokText.append(">=");
+                                type = TokenType.OPERATOR_GEQU;
                                 i++;
                                 column++;
-                        } else {
-                                tokText.append_c('>');
-                        }
-                        ret += Token(tokText.str, TokenType.OPERATOR, info);
+                        } else type = TokenType.OPERATOR_GREATER;
+                        ret += Token(type, info);
                         continue;
                 }
-                if(c == '.') {
-                        var tokText = new StringBuilder();
-                        tokText.append_c(c);
-                        i++;
-                        column++;
-                        ret += Token(tokText.str, TokenType.OPERATOR, TokenInfo(line, column, filename));
-                        continue;
-                }
-                if(c == ',') {
-                        var tokText = new StringBuilder();
-                        tokText.append_c(c);
-                        i++;
-                        column++;
-                        ret += Token(tokText.str, TokenType.SPECIAL, TokenInfo(line, column, filename));
-                        continue;
-                }
-                if(c == ';') {
-                        var tokText = new StringBuilder();
-                        tokText.append_c(c);
-                        i++;
-                        column++;
-                        ret += Token(tokText.str, TokenType.SPECIAL, TokenInfo(line, column, filename));
-                        continue;
-                }
-                if(c == ':') {
-                        var tokText = new StringBuilder();
-                        tokText.append_c(c);
+                if(c == '&') {
                         i++;
                         column++;
                         var info = TokenInfo(line, column, filename);
-                        var type = TokenType.SPECIAL;
+                        TokenType type;
+                        c = code[i];
+                        if(c == '&') {
+                                type = TokenType.OPERATOR_AND;
+                                i++;
+                                column++;
+                        } else if(c == '=') {
+                                type = TokenType.OPERATOR_BAND_EQ;
+                                i++;
+                                column++;
+                        } else type = TokenType.OPERATOR_BAND;
+                        ret += Token(type, info);
+                        continue;
+                }
+                if(c == '|') {
+                        i++;
+                        column++;
+                        var info = TokenInfo(line, column, filename);
+                        TokenType type;
+                        c = code[i];
+                        if(c == '|') {
+                                type = TokenType.OPERATOR_OR;
+                                i++;
+                                column++;
+                        } else if(c == '=') {
+                                type = TokenType.OPERATOR_BOR_EQ;
+                                i++;
+                                column++;
+                        } else type = TokenType.OPERATOR_BOR;
+                        ret += Token(type, info);
+                        continue;
+                }
+                if(c == '^') {
+                        i++;
+                        column++;
+                        var info = TokenInfo(line, column, filename);
+                        TokenType type;
+                        c = code[i];
+                        if(c == '^') {
+                                type = TokenType.OPERATOR_XOR;
+                                i++;
+                                column++;
+                        } else if(c == '=') {
+                                type = TokenType.OPERATOR_BXOR_EQ;
+                                i++;
+                                column++;
+                        } else type = TokenType.OPERATOR_BXOR;
+                        ret += Token(type, info);
+                        continue;
+                }
+                if(c == '~') {
+                        i++;
+                        column++;
+                        var info = TokenInfo(line, column, filename);
+                        TokenType type;
+                        c = code[i];
+                        if(c == '=') {
+                                type = TokenType.OPERATOR_BNOT_EQ;
+                                i++;
+                                column++;
+                        } else type = TokenType.OPERATOR_BNOT;
+                        ret += Token(type, info);
+                        continue;
+                }
+                if(c == '.') {
+                        i++;
+                        column++;
+                        ret += Token(TokenType.OPERATOR_ACCESS, TokenInfo(line, column, filename));
+                        continue;
+                }
+                if(c == ',') {
+                        i++;
+                        column++;
+                        ret += Token(TokenType.SPECIAL_COMA, TokenInfo(line, column, filename));
+                        continue;
+                }
+                if(c == ';') {
+                        i++;
+                        column++;
+                        ret += Token(TokenType.SPECIAL_SEMICOLON, TokenInfo(line, column, filename));
+                        continue;
+                }
+                if(c == ':') {
+                        i++;
+                        column++;
+                        var info = TokenInfo(line, column, filename);
+                        TokenType type;
                         c = code[i];
                         if(c == ':') {
-                                tokText.append_c(c);
+                                type = TokenType.OPERATOR_NAME_ACCESS;
                                 i++;
                                 column++;
                                 c = code[i];
-                                type = TokenType.OPERATOR;
-                        }
-                        ret += Token(tokText.str, type, info);
+                        } else type = TokenType.SPECIAL_VAR_TYPE;
+                        ret += Token(type, info);
                         continue;
                 }
-                i++; 
-                column++;
+                if(c.isspace()) {
+                        i++;
+                        column++;
+                        continue;
+                }
+                if(c == '\0') break;
+                _log.TokenInfo(TokenInfo(line, column, filename), "Unknown character 0x%x", c);
         }
-        ret += Token("", TokenType.EOC, TokenInfo(-1, -1, "null"));
+        ret += Token(TokenType.EOC, TokenInfo(line, column, filename));
         return ret;
 }
 
-
+public string removeComments(string code) {
+        var ret = new StringBuilder();
+        for (var i = 0; i < code.length; i++) {
+                var c = code[i];
+                if(c == '/') {
+                        if(code[i + 1] == '/') {
+                                while(c != '\n') {
+                                        c = code[i];
+                                        i++;
+                                }
+                                i -=2;
+                        } else {
+                                ret.append_c(c);
+                        }
+                } else {
+                        ret.append_c(c);
+                }
+        }
+        return ret.str;
+}

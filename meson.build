@@ -10,15 +10,16 @@ vala_args = [
 dependencies = [
     dependency('glib-2.0'),
     dependency('gobject-2.0'),
+    meson.get_compiler('c').find_library('m'),
 ]
 
 src = files([
   'main.vala',
   'token.vala',
   'tokenise.vala',
-  'lexer.vala',
-  'lexerise.vala',
+  'parser.vala',
   'normalise.vala',
+  'generator.vala',
   'logger.vala'
 ])
 

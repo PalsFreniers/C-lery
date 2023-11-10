@@ -1,15 +1,31 @@
+int run(string []av) {
+        SpawnFlags flags = 0;
+        string PWD = Environment.get_current_dir();
+
+        flags = SEARCH_PATH | CHILD_INHERITS_STDIN;
+        try {
+                int status;
+                Process.spawn_sync(PWD, av, Environ.get(), flags, null, null, null, out status);
+                return status;
+        } catch (Error e) {
+                print("%s\n", e.message);
+        }
+        return 1;
+}
+
 void main(string[] args) {
+        if(args.length != 2) return;
         string content;
         size_t size;
         try {
-//                 var _log = new Logger("Master");
-                var file = "../test/Hello_World.lery";
+                var file = args[1];
                 var exist = FileUtils.get_contents(file, out content, out size);
                 if(!exist) return;
-                var noComm = removeComments(content);
-                var tokenList = getTokensList(noComm, file);
-                lexeriseBase(tokenList);
-                writeC("test.c");
+                //var noComm = removeComments(content);
+                //var tokenList = getTokensList(noComm, file);
+                generateAsm(file);
+                run({"nasm", "-felf64", "-o", file + ".o", file + ".S"});
+                run({"ld", "-o", file.split(".lery")[0], file + ".o"});
         } catch (Error e) {
                 print ("%s\n", e.message);
         }
