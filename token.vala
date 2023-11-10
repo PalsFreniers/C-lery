@@ -1,3 +1,7 @@
+public enum UniformLiteral {
+        INT, STR, CHAR, BOOL, FLOAT, NONE,
+}
+
 public enum TokenType {
         UNDEFINED,
         IDENTIFIER,
@@ -16,7 +20,29 @@ public enum TokenType {
         OPERATOR_LEQU, OPRATOR_LESS, OPERATOR_SHL, OPERATOR_SHL_EQU, OPERATOR_GREATER, OPERATOR_SHR, OPERATOR_SHR_EQU,
         OPERATOR_ACCESS, OPERATOR_NAME_ACCESS,
         SPECIAL_RETURN_TYPE, SPECIAL_STRING_CAT, SPECIAL_COMA, SPECIAL_SEMICOLON, SPECIAL_VAR_TYPE,
-        EOC,
+        EOC;
+
+        public UniformLiteral getUniformLitteral() {
+                switch (this) {
+                case LITTERAL_F32:
+                case LITTERAL_F64:
+                case LITTERAL_F128:
+                        return UniformLiteral.FLOAT;
+                case LITTERAL_UINT8:
+                case LITTERAL_UINT16:
+                case LITTERAL_UINT32:
+                case LITTERAL_UINT64:
+                        return UniformLiteral.INT;
+                case LITTERAL_STR:
+                        return UniformLiteral.STR;
+                case LITTERAL_CHAR:
+                        return UniformLiteral.CHAR;
+                case LITTERAL_BOOL:
+                        return UniformLiteral.BOOL;
+                default:
+                        return UniformLiteral.NONE;
+                }
+        }
 }
 
 public struct TokenInfo {
