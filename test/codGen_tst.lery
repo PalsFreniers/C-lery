@@ -1,0 +1,3 @@
+fn test(p1: char) -> void {}
+
+fn entry() -> void {}
