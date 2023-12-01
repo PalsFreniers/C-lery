@@ -23,11 +23,14 @@ void main(string[] args) {
                 if(!exist) return;
                 var noComm = removeComments(content);
                 var tokenList = getTokensList(noComm, file);
-                var parser = new Parser(tokenList);
-                var parseTree = parser.parse();
-                generateAsm(file, parseTree);
-                run({"nasm", "-felf64", "-o", file + ".o", file + ".S"});
-                run({"ld", "-o", file.split(".lery")[0], file + ".o"});
+                foreach(var t in tokenList) {
+                        print(@"$(t)\n");
+                }
+//                 var parser = new Parser(tokenList);
+//                 var parseTree = parser.parse();
+//                 generateAsm(file, parseTree);
+//                 run({"nasm", "-felf64", "-o", file + ".o", file + ".S"});
+//                 run({"ld", "-o", file.split(".lery")[0], file + ".o"});
         } catch (Error e) {
                 print ("%s\n", e.message);
         }

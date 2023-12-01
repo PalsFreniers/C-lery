@@ -11,12 +11,15 @@ public string generateCRT0() {
         return sb.str;
 }
 
-public void generateAsm(string file, Node.Root tree) {
+public void generateAsm(string file, Token[] tokens) {
         var fs = FileStream.open(file + ".S", "w");
         if(fs == null) return;
-        fs.printf(generateCRT0());        
-        fs.printf("global _entry\n");
-        fs.printf("_entry:\n");
-        fs.printf("        mov rax, %s\n", tree.ret.expr.int_lit.text);
-        fs.printf("        ret");
+        fs.printf(generateCRT0());
+}
+
+public void generateC(string file, Token[] token) {
+        var fs = FileStream.open(file + ".c", "w");
+        if(fs == null) return;
+        var i = 0;
+        var t = token[i];
 }

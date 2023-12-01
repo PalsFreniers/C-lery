@@ -1,0 +1,46 @@
+<program> ::= (<declarator>)*
+
+<declarator> ::= <function>
+               | <namespace>
+               | <class>
+               | <struct>
+               | <enum>
+               | <union>
+               | <typedef>
+
+<function>  ::= "fn" <identifier> "(" <arguments> ")" "->" <returntype> <body>
+<body>      ::= "{" (<instructions>)* "}"
+<var>       ::= <identifier> ":" (<type> | <identifier>)
+<argument>  ::= ("ref" <var> | <var>)
+<arguments> ::= (<argument> "," | <argument> | "")*
+
+<character>  ::= [a-zA-Z]
+<number>     ::= [0-9]
+<characters> ::= (<character>)*
+<numbers>    ::= (<number>)*
+
+<identifier> ::= (<character> | "_")(<character> | <number> | "_")*
+
+<returntype> ::= <type> | "void"
+<fntype>     ::= "fn" "[" <returntype> "]" "(" (<typearg> "," | <typearg> | "")* ")"
+<typearg>    ::= (<type> | "ref" <type>)
+<type>       ::= "i8"
+               | "i16"
+               | "i32"
+               | "i64"
+               | "u8"
+               | "u16"
+               | "u64"
+               | "f32"
+               | "f64"
+               | "f128"
+               | "str"
+               | "char"
+               | "bool"
+               | "va_list"
+               | <fntype>
+
+<instructions> ::= (<instruction>)*
+<instruction>  ::= <expression> ";"
+
+<expression> ::= 

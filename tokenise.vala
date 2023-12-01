@@ -1,26 +1,6 @@
-public TokenType getFloatBytesSize(string number, Logger _log) {
-        var pow  = (int)Math.ceil(number.split(".")[0].length * Math.log2(10));
-        var size = (int)Math.ceil((number.length - 1) * Math.log2(10));
-        if(size < 24 && pow < 9) return TokenType.LITTERAL_F32;
-        if(size < 53 && pow < 12) return TokenType.LITTERAL_F64;
-        if(size < 113 && pow < 16) return TokenType.LITTERAL_F128;
-        _log.error(@"Uknown byte size of floating point $(number)");
-}
-
 public TokenType getNumberLitteralType(string number) {
-        var _log = new Logger("Number Converter");
-        int size;
-        if(number.has_prefix("0x")) size = (number.length - 2) * 4;
-        else if(number.has_prefix("0b")) size = number.length - 2;
-        else if(number.contains(".")) return getFloatBytesSize(number, _log);
-        else size = (int)Math.pow(2, Math.ceil(Math.log2(number.length * Math.log2(10))));
-        if(size < 8) size = 8;
-        if(size > 64) _log.error(@"this value is too big : $(number)");
-        if(size == 8)  return TokenType.LITTERAL_UINT8;
-        if(size == 16) return TokenType.LITTERAL_UINT16;
-        if(size == 32) return TokenType.LITTERAL_UINT32;
-        if(size == 64) return TokenType.LITTERAL_UINT32;
-        _log.error(@"Unknown byte size of number $(number)");
+        if(number.contains(".")) return LITTERAL_FLOAT;
+        return TokenType.LITTERAL_UINT;
 }
 
 public Token[] getTokensList(string code, string filename) {
@@ -97,9 +77,6 @@ public Token[] getTokensList(string code, string filename) {
                                         break;
                                 case "new":
                                         type = TokenType.KW_NEW;
-                                        break;
-                                case "var":
-                                        type = TokenType.KW_VAR;
                                         break;
                                 case "const":
                                         type = TokenType.KW_CONST;
@@ -346,6 +323,13 @@ public Token[] getTokensList(string code, string filename) {
                         if(type == TokenType.UNDEFINED) _log.TokenError(info, "Parsing error undefined bracket Type |unreachable|");
                         ret += Token(type, info);
                         c = code[i];
+                        continue;
+                } else if(c == '@') {
+                        i++;
+                        column++;
+                        var info = TokenInfo(line, column, filename);
+                        c = code[i];
+                        ret += Token(TokenType.OPERATOR_CAST, info);
                         continue;
                 } else if(c == '/') {
                         i++;

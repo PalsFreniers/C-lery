@@ -1,14 +1,24 @@
-global C::importSymbol("printf")(fmt: str, lst: va_list);
-
-fn printnbr(nb: i32, ) -> void {
-        printf("%d\n", nb);
-        C::printf("Hello World!\n");
-        C::callSymbol("write")(1, "test", 4);
+fn strlen(s: str) -> u64 {
+	i: u64 = 0;
+	while(s[i] != 0) i++;
+	return i;
 }
 
-fn test1(i: str, lst: va_list) -> void {}
-fn test2(i: str, lst: va_list) -> void {}
-fn test3(i: str, lst: va_list) -> void {}
+fn write(fd: i32, s: str, len: u64) -> u64 {
+        asm (fd, s, len) {
+        	"mov rax, 1",
+        	"mov rdi, %0",
+        	"mov rsi, %1",
+        	"mov rdx, %2",
+        	"syscall",
+        }
+        ret: u64 = asmr["rax"];
+        return ret;
+}
+
+fn print(s: str) -> void {
+	write(1, s, strlen(s));
+}
 
 fn entry() -> i32 {
         print("test");

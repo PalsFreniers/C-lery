@@ -48,13 +48,17 @@ namespace define classes{
                         self[y] = copy.getY();
                 }//optional
 
-                property x: i32;
-                property y: i32{default = 0};
+                property x: i32{get;};
+                property y: i32{get;default = 0;};
                 property name: str{get;set;};
 
                 method toString() -> void{
                         return!"${self[name]} => {${self[x]}; ${self[y]}}";
                 }
+        }
+        
+        fn test(a: Obj) -> void {
+        	a.setName("test");
         }
 
         struct Point (
@@ -100,7 +104,7 @@ fn entry(args:str[]) -> code{
         C::stdio::printf("Hello World from c printf!\n"); // using a function from a c library
         std::print("Hello world from C-lery print!
 on multiple lines\n"); // using a function from a library
-        test:str=strmap("Hello World",[char](c:char)=>{return c+3;});
+        test:str=strmap("Hello World",lambda[char](c:char)=>{return c+3;});
         std::print(!"${str}");
         rng::sayHello();
         var object=new Obj(12,53);
