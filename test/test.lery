@@ -25,15 +25,20 @@ type new(duration){u64}:{method init()->duration{self = 0;}
         }
 }
 
-type new(cstr){str} :{
+type new(str){cstr} :{
         method init() -> void{
 
         }
 }
 
 namespace define classes{
-        class Obj{
-                method init(x: i32, y: i32, name: str = "noName") -> void{
+
+        polymorph entity {
+                method hello() -> void;
+        }
+
+        class Obj # entity {
+                method init(x: i32, y: i32, name: str = "noName") -> void {
                         self[x] = x;
                         self[y] = y;
                         self[name] = name;
@@ -43,22 +48,43 @@ namespace define classes{
 
                 } // optional
 
-                method copy(Obj copy) -> void{
+                method copy(Obj copy) -> void {
                         self[x] = copy.getX();
                         self[y] = copy.getY();
-                }//optional
+                } // optional
 
                 property x: i32{get;};
                 property y: i32{get;default = 0;};
                 property name: str{get;set;};
 
-                method toString() -> void{
-                        return!"${self[name]} => {${self[x]}; ${self[y]}}";
+                method toString() -> void {
+                        return !"${self[name]} => {${self[x]}; ${self[y]}}";
+                }
+
+                method hello() {
+                        print("hello Obj\n");
                 }
         }
-        
-        fn test(a: Obj) -> void {
-        	a.setName("test");
+
+        class Obj2 # entity {
+                method init() -> self {}
+
+                method hello() {
+                        std::print("hello Obj2\n");
+                }
+        }
+
+        ent: entity[2] = {new Obj(12, 15), new Obj2}; 
+        obj = new Obj2();
+        fn test(a: entity[]) -> void {
+                for(b: entity in a) {
+                        b.hello();
+                        if(b instanceof Obj) {
+                                b<name> = "hello";
+                                x:i32 = b<x>;
+                                C::printf("%d", b.getX())
+                        }
+                }
         }
 
         struct Point (
@@ -74,16 +100,30 @@ namespace define classes{
 
         union number [f32:i32:f64:i64];
 
+        union c [Point:i64];
+        p: Point = {.x = 0; .y = 0};
+        nb: c@Point = p;
+        nb@i64 = 0x00000003_00000005;
+        nb@Point;
+
         struct nb (size: i8, data: number);
 
 }
 
 fn writeToFile(text: str, filePath: str) -> void{
-        var file = file::open(filePath, "w");
-        defer{
-                file.close();
+        f: file::fstream = file::open(filePath, "w");
+        defer {
+                f.close();
         }
-        file.write("New text :{%s}",text);
+        i:i64 = text.length();
+        asm (str, i) {
+                "mov rdi, 1",
+                "mov rsi, $1",
+                "mov rdx, $2",
+                "mov rax, 1",
+                "syscall"
+        }
+        f.write("New text :{%s}",text);
 }
 
 fn strmap(ref arr:str,map:fn[char](char))->void{
@@ -92,6 +132,11 @@ fn strmap(ref arr:str,map:fn[char](char))->void{
         for(var i = 0; i< str.length; i++){
                 str[i] = map(c);
         }
+}
+
+fn str2() ->void {
+        arr: str = "Hello bitchies";
+        strmap(ref str, lambda[char](c:char) => {return c+1;});
 }
 
 namespace define rng{
@@ -109,7 +154,7 @@ on multiple lines\n"); // using a function from a library
         rng::sayHello();
         var object=new Obj(12,53);
         printf(!"${object}");
-        var l = strmap("test", lambda[char](char c) {
+        var l = strmap("test", lambda[char](char c) => {
                 if(c == 't') return 'f';
                 return c;
         });

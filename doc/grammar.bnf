@@ -7,17 +7,32 @@
                | <enum>
                | <union>
                | <typedef>
+               | <global>
 
 <function>  ::= "fn" <identifier> "(" <arguments> ")" "->" <returntype> <body>
-<body>      ::= "{" (<instructions>)* "}"
-<var>       ::= <identifier> ":" (<type> | <identifier>)
+<body>      ::= "{" <instructions> "}"
+<var>       ::= <identifier> ":" <type>
 <argument>  ::= ("ref" <var> | <var>)
-<arguments> ::= (<argument> "," | <argument> | "")*
+<arguments> ::= (<argument> "," | "")* (<argument> | "")
 
 <character>  ::= [a-zA-Z]
 <number>     ::= [0-9]
-<characters> ::= (<character>)*
-<numbers>    ::= (<number>)*
+<escape>     ::= "\\" <character>
+
+<litteralnumber> ::= [0-9]+
+                   | "0x" [0-9a-fA-F]+
+                   | "0b" ("0" | "1")+
+<litteralfloat> ::= [0-9]+ "." [0-9]+
+<litteralchar> ::= "'" <character> "'"
+<litteralstr> ::= "\"" (* | <escape>)* "\""
+<litteralbool> ::= true
+                 | false
+
+<litteral> ::= <litteralnumber>
+             | <litteralfloat>
+             | <litteralchar>
+             | <litteralstr>
+             | <litteralbool>
 
 <identifier> ::= (<character> | "_")(<character> | <number> | "_")*
 
@@ -39,8 +54,51 @@
                | "bool"
                | "va_list"
                | <fntype>
+               | <identifier>
+
+<condition> ::= <mathexpr>
+              | <condition> < <condition>
+              | <condition> > <condition>
+              | <condition> <= <condition>
+              | <condition> >= <condition>
+              | <condition> <= <condition>
+              | <condition> >= <condition>
+
+<while> ::= "while" "(" <condition> ")" <body>
+<keywordsinstr> ::= <while>
 
 <instructions> ::= (<instruction>)*
 <instruction>  ::= <expression> ";"
 
-<expression> ::= 
+<givable> ::= <identifier> | <litteral>
+<givableargs> ::= (<givable> | "ref" <givable>)
+
+<callexpr> ::= <identifier> "(" (<givableargs> "," | "")* (<givableargs> | "") ")"
+
+<mathfact> ::= <identifier>
+             | <litteral>
+             | <callexpr>
+             | "(" <mathexpr> ")"
+
+<mathterm> ::= <mathfact>
+             | <mathterm> "*" <mathfact>
+             | <mathterm> "/" <mathfact>
+             | <mathterm> "%" <mathfact>
+             | "++" <identifier>
+
+<mathexpr> ::= <mathterm>
+             | <mathexpr> "+" <mathterm>
+             | <mathexpr> "-" <mathterm>
+             | <mathexpr> "|" <mathterm>
+             | <mathexpr> "&" <mathterm>
+             | <mathexpr> "^" <mathterm>
+             | ~ <mathexpr>
+             | <mathexpr> "<<" <mathterm>
+             | <mathexpr> ">>" <mathterm>
+             | <identifier> "++"
+
+<while> ::= "while" <body>
+
+
+<expression> ::= <expression>
+               | <mathexpr>

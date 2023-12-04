@@ -45,6 +45,9 @@ public Token[] getTokensList(string code, string filename) {
                                 case "class":
                                         type = TokenType.KW_CLASS;
                                         break;
+                                case "polymorph":
+                                        type = TokenType.KW_POLYMORPH;
+                                        break;
                                 case "struct":
                                         type = TokenType.KW_STRUCT;
                                         break;
@@ -295,7 +298,7 @@ public Token[] getTokensList(string code, string filename) {
                         c = code[i];
                         ret += Token(TokenType.LITTERAL_CHAR, info, tokText.str);
                         continue;
-                } else if(c in "[](){}".data) {
+                } else if(c in "[](){}<>".data) {
                         i++;
                         column++;
                         var type = TokenType.UNDEFINED;
@@ -318,6 +321,12 @@ public Token[] getTokensList(string code, string filename) {
                                         break;
                                 case ']':
                                         type = TokenType.SQUARE_BRACKET_CLOSE;
+                                        break;
+                                case '<':
+                                        type = TokenType.CHEVRON_OPEN;
+                                        break;
+                                case '>':
+                                        type = TokenType.CHEVRON_CLOSE;
                                         break;
                         }
                         if(type == TokenType.UNDEFINED) _log.TokenError(info, "Parsing error undefined bracket Type |unreachable|");
@@ -611,9 +620,11 @@ public Token[] getTokensList(string code, string filename) {
 
 public string removeComments(string code) {
         var ret = new StringBuilder();
+        var inStr = false;
         for (var i = 0; i < code.length; i++) {
                 var c = code[i];
-                if(c == '/') {
+                if(c == '\"') inStr = !inStr;
+                if(!inStr && c == '/') {
                         if(code[i + 1] == '/') {
                                 while(c != '\n') {
                                         c = code[i];
