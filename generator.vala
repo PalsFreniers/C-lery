@@ -1,4 +1,4 @@
-string genParams(bool isCall, int nb) {
+/*string genParams(bool isCall, int nb) {
         switch (nb) {
                 case 0:
                         return "";
@@ -92,4 +92,4 @@ public void generateC(string file) {
                 }
                 fs.printf(@") {\n        ;\n}\n");
         }
-}
+}*/

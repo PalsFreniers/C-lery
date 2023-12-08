@@ -22,6 +22,23 @@ public enum TokenType {
         SPECIAL_RETURN_TYPE, SPECIAL_STRING_CAT, SPECIAL_COMA, SPECIAL_SEMICOLON, SPECIAL_VAR_TYPE,
         EOC;
 
+        public string to_string() {
+                switch (this) {
+                        case OPERATOR_PLUS:
+                                return "+";
+                        case OPERATOR_MINUS:
+                                return "-";
+                        case OPERATOR_MULT:
+                                return "*";
+                        case OPERATOR_DIVIDE:
+                                return "/";
+                        case LITTERAL_UINT:
+                                return "litteral";
+                        default:
+                                return "WIP";
+                }
+        }
+
         public UniformLiteral getUniformLitteral() {
                 switch (this) {
                 case LITTERAL_FLOAT:
@@ -77,7 +94,7 @@ public struct Token {
                 var sb = new StringBuilder();
                 sb.append("[\n");
                 if(this.text != null) sb.append(@"\tToken: \"$(this.text)\"\n");
-//                 sb.append(@"\tType:  $(this.type)\n");
+                sb.append(@"\tType:  $(this.type)\n");
                 sb.append(@"\tInfo:\n$(this.info)\n");
                 sb.append("]\n");
                 return sb.str;

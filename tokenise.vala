@@ -623,7 +623,10 @@ public string removeComments(string code) {
         var inStr = false;
         for (var i = 0; i < code.length; i++) {
                 var c = code[i];
-                if(c == '\"') inStr = !inStr;
+                if(c == '\"') {
+                        inStr = !inStr;
+                        if(i > 0 && code[i - 1] == '\\') inStr = !inStr;
+                }
                 if(!inStr && c == '/') {
                         if(code[i + 1] == '/') {
                                 while(c != '\n') {
