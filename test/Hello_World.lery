@@ -1,26 +1,51 @@
+extern {
+	fn write(fd: i32, s: str, len: u64) -> i64;
+}
+
 fn strlen(s: str) -> u64 {
 	i: u64 = 0;
 	while(s[i] != 0) i++;
 	return i;
 }
 
-fn write(fd: i32, s: str, len: u64) -> u64 {
-        asm (fd, s, len) {
-        	"mov rax, 1",
-        	"mov rdi, %0",
-        	"mov rsi, %1",
-        	"mov rdx, %2",
-        	"syscall",
-        }
-        ret: u64 = asmr["rax"];
-        return ret;
+class data {
+	method print() -> void {
+		extern::write(1, self[value], strlen(self[value]));
+	}
+	
+	property value: str {get;set;default="test";};
 }
 
 fn print(s: str) -> void {
-	write(1, s, strlen(s));
+	extern::write(1, s, strlen(s));
+}
+
+namespace define random {
+	fn rng() -> i32 {
+		ret: i32 = 1;
+		ret = ret ^ ((ret << 5) ^ (ret >> 12));
+		return ret;
+	}
+	struct Point (
+		x: i32,
+		y: i32,
+	)
+	
+	union pnt[Point:u64];
 }
 
 fn entry() -> i32 {
+	i: data = new data();
         print("test");
-        return 69;
+        i<value> = "new test"
+        i.print();
+        rand: i32 = random::rng();
+        point: random::Point = random::Point{
+        	.x = rand,
+        	.y = 12,
+        };
+        p: pnt;
+        p@Point = point;
+        p@u64 = 0x0000000A_0000000B;
+        return p@Point<x>;
 }

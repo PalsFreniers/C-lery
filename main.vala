@@ -25,7 +25,7 @@ void main(string[] args) {
                 var tokenList = getTokensList(noComm, file);
                 var a = new Parser(tokenList).parse();
                 printNode(a.root);
-                print("\n\n\n%d", evalNode(a.root));
+                print("\n\n\n%f", evalNode(a.root));
 //                 generateC(file);
 //                 run({"nasm", "-felf64", "-o", file + ".o", file + ".S"});
 //                 run({"ld", "-o", file.split(".lery")[0], file + ".o"});
@@ -34,11 +34,19 @@ void main(string[] args) {
         }
 }
 
-int evalNode(ExpressionNode node) {
+double evalNode(ExpressionNode node) {
         switch (node.type) {
                 case SyntaxType.NUMBER_LITTERAL:
                         var n = node as NumberLitteralNode;
-                        return int.parse(n.numberToken.text);
+                        if(n.numberToken.type == TokenType.LITTERAL_UINT) {
+                                if(n.numberToken.text.length > 2) {
+                                        if(n.numberToken.text.has_prefix("0x")) return uint64.parse(n.numberToken.text[2:], 16);
+                                        if(n.numberToken.text.has_prefix("0b")) return uint64.parse(n.numberToken.text[2:], 2);
+                                }
+                                return uint64.parse(n.numberToken.text);
+                        }
+                        else if(n.numberToken.type == TokenType.LITTERAL_FLOAT) return double.parse(n.numberToken.text);
+                        else return 0;
                 case SyntaxType.BINARY_OPERATOR:
                         var n = node as BinaryOperationNode;
                         var left = evalNode(n.left);
@@ -55,30 +63,31 @@ int evalNode(ExpressionNode node) {
                                 default:
                                         return 0;
                         }
+                case SyntaxType.PARENTHESIZED_EXPRESSION:
+                        var n = node as ParenthesisNode;
+                        return evalNode(n.expr);
                 default:
                         return 0;
         }
 }
 
-void printNode(ExpressionNode node) {
+void printNode(ExpressionNode node, string tab = "") {
         switch (node.type) {
                 case SyntaxType.NUMBER_LITTERAL:
-                        NumberLitteralNode n = node as NumberLitteralNode;
-                        print("Number {\n");
-                        print(@"$(n.numberToken)\n");
-                        print("}\n");
+                        var n = node as NumberLitteralNode;
+                        print(@"$(tab)|___$(n.numberToken.text)\n");
                         return;
                 case SyntaxType.BINARY_OPERATOR:
-                        BinaryOperationNode n = node as BinaryOperationNode;
-                        print("operation {\n");
-                        print("left : {\n");
-                        printNode(n.left);
-                        print("}\n");
-                        print(@"Operator = $(n.operation)\n");
-                        print("right : {\n");
-                        printNode(n.right);
-                        print("}\n");
-                        print("}\n");
+                        var n = node as BinaryOperationNode;
+                        print(@"$(tab)|---$(n.operation.type)\n");
+                        printNode(n.left, tab + "|   ");
+                        printNode(n.right, tab + "|   ");
+                        return;
+                case SyntaxType.PARENTHESIZED_EXPRESSION:
+                        var n = node as ParenthesisNode;
+                        print(@"$(tab)|---$(n.openP.type)\n");
+                        printNode(n.expr, tab + "|   ");
+                        print(@"$(tab)|___$(n.closeP.type)\n");
                         return;
         }
 }

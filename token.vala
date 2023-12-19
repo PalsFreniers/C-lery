@@ -32,8 +32,17 @@ public enum TokenType {
                                 return "*";
                         case OPERATOR_DIVIDE:
                                 return "/";
+                        case PARENTESIS_OPEN:
+                                return "(";
+                        case PARENTESIS_CLOSE:
+                                return ")";
+                        case OPERATOR_ACCESS:
+                                return ".";
                         case LITTERAL_UINT:
+                        case LITTERAL_FLOAT:
                                 return "litteral";
+                        case EOC:
+                                return "EndOfCode";
                         default:
                                 return "WIP";
                 }

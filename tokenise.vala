@@ -1,5 +1,5 @@
 public TokenType getNumberLitteralType(string number) {
-        if(number.contains(".")) return LITTERAL_FLOAT;
+        if(number.contains(".")) return TokenType.LITTERAL_FLOAT;
         return TokenType.LITTERAL_UINT;
 }
 
@@ -221,6 +221,12 @@ public Token[] getTokensList(string code, string filename) {
                         } else {
                                 tokText.append_c(c);
                                 c = code[i];
+                                if(c == '.') {
+                                        tokText.append_c(c);
+                                        i++;
+                                        column++;
+                                        c = code[i];
+                                }
                                 while(c.isdigit() || c == '_') {
                                         if(c != '_') tokText.append_c(c);
                                         i++;

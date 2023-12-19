@@ -42,16 +42,16 @@ namespace define classes{
                         self[x] = x;
                         self[y] = y;
                         self[name] = name;
-                } // mandatory
+                }
 
                 method destruct() -> void{
 
-                } // optional
+                }
 
                 method copy(Obj copy) -> void {
                         self[x] = copy.getX();
                         self[y] = copy.getY();
-                } // optional
+                }
 
                 property x: i32{get;};
                 property y: i32{get;default = 0;};
@@ -101,7 +101,7 @@ namespace define classes{
         union number [f32:i32:f64:i64];
 
         union c [Point:i64];
-        p: Point = {.x = 0; .y = 0};
+        p: Point = Point{.x = 0; .y = 0};
         nb: c@Point = p;
         nb@i64 = 0x00000003_00000005;
         nb@Point;
